@@ -50,3 +50,52 @@ const folder = req.baseUrl.split("/").pop();
 
 
 So, this approach is useful when you want to extract the last part of the URL path
+
+
+/************************************************************************************************/
+let’s now integrate JWT-based authentication into your Node.js CRUD app for Customers, Dietitians, and Advisors — so each can register, log in, and access protected routes securely.
+
+
+We’ll use:
+
+bcryptjs for password hashing
+
+jsonwebtoken for signing and verifying tokens
+
+Run this in your project root:
+
+npm install bcryptjs jsonwebtoken
+
+
+Step 5: Add Auth Routes for Each Role
+
+You can keep authentication routes separate for each type (Customer, Dietitian, Advisor
+
+  //if (req.user.role !== "dietitian") return res.status(403).json({ message: "Access denied" });
+
+
+You now have a complete secure CRUD system with:
+
+✅ Customer–Dietitian–Advisor relationships
+
+✅ Reviews for Dietitians
+
+✅ File upload (local storage)
+
+✅ JWT-based authentication for all three user types
+
+✅ Role-based access control support
+
+/************************************************************************************************/
+
+
+/************************************************************************************************/
+
+
+/************************************************************************************************/
+
+
+/************************************************************************************************/
+
+
+/************************************************************************************************/

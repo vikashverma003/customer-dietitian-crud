@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
 
+// Always use camelcase below convention is wrong.
 const CustomerSchema = new mongoose.Schema(
   {
     // userId: {
@@ -19,6 +21,8 @@ const CustomerSchema = new mongoose.Schema(
       max: 500,
     },
     profileImage: { type: String }, // store file path
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
 
     age: {
       type: Number,
@@ -26,5 +30,17 @@ const CustomerSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// Hash password before save
+CustomerSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+  this.password = await bcrypt.hash(this.password, 10);
+  next();
+});
+
+// Compare passwords
+CustomerSchema.methods.matchPassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
 
 module.exports = mongoose.model("Customer", CustomerSchema);

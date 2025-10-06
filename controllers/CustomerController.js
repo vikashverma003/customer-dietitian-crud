@@ -1,8 +1,54 @@
 const Customer = require("../models/Customer");
+const generateToken = require("../utils/generateToken");
+
+const register = async (req, res) => {
+  const { name, age, email, password } = req.body;
+  try {
+    const exists = await Customer.findOne({ email });
+    if (exists)
+      return res.status(400).json({ message: "Email already registered" });
+
+    const customer = await Customer.create({ name, age, email, password });
+    const token = generateToken(customer._id, "customer");
+
+    res.status(201).json({
+      _id: customer._id,
+      name: customer.name,
+      email: customer.email,
+      token,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+const login = async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const customer = await Customer.findOne({ email });
+    if (!customer) return res.status(404).json({ message: "User not found" });
+
+    const isMatch = await customer.matchPassword(password);
+    if (!isMatch)
+      return res.status(400).json({ message: "Invalid credentials" });
+
+    const token = generateToken(customer._id, "customer");
+    res.json({
+      _id: customer._id,
+      name: customer.name,
+      email: customer.email,
+      token,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
 /* GetAll the Customers  */
 
 const getCustomers = async (req, res) => {
+  //if (req.user.role !== "dietitian") return res.status(403).json({ message: "Access denied" });
+
   try {
     const customer = await Customer.find()
       .populate({
@@ -203,4 +249,6 @@ module.exports = {
   singleCustomer,
   dietitianWithReview,
   deleteCustomer,
+  register,
+  login,
 };
