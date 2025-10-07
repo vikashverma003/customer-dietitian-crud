@@ -1,5 +1,53 @@
 const Dietitian = require("../models/Dietitian");
 const upload = require("../middleware/upload");
+const generateToken = require("../utils/generateToken");
+
+/******** Token based Authentication ***********/
+
+const register = async (req, res) => {
+  const { name, age, email, password } = req.body;
+  try {
+    const exists = await Dietitian.findOne({ email });
+    if (exists)
+      return res.status(400).json({ message: "Email already registered" });
+
+    const customer = await Dietitian.create({ name, age, email, password });
+    const token = generateToken(customer._id, "dietitian");
+
+    res.status(201).json({
+      _id: customer._id,
+      name: customer.name,
+      email: customer.email,
+      token,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+const login = async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const customer = await Dietitian.findOne({ email });
+    if (!customer) return res.status(404).json({ message: "User not found" });
+
+    const isMatch = await customer.matchPassword(password);
+    if (!isMatch)
+      return res.status(400).json({ message: "Invalid credentials" });
+
+    const token = generateToken(customer._id, "dietitian");
+    res.json({
+      _id: customer._id,
+      name: customer.name,
+      email: customer.email,
+      token,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+/************END*********/
 
 /* GetAll the Customers  */
 
@@ -141,4 +189,6 @@ module.exports = {
   getDietitians,
   createDietitian,
   updateDietitian,
+  register,
+  login,
 };

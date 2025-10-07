@@ -6,7 +6,8 @@ const connectDB = require("./config/db");
 
 const dotenv = require("dotenv");
 
-dotenv.config();
+// dotenv.config();
+dotenv.config({ debug: true }); // Enabling the debug mode.
 connectDB();
 
 const PORT = process.env.PORT || 8003;

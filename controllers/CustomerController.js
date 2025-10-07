@@ -1,6 +1,66 @@
 const Customer = require("../models/Customer");
 const generateToken = require("../utils/generateToken");
 
+/***************** Start we’ll extend that to restrict access to certain routes depending on user roles:  *********************/
+
+// ➕ Create Customer — only Advisor or Admin can add a new customer
+
+const createCustomerByOther = async (req, res) => {
+  try {
+    const data = req.body;
+    if (req.file) data.profileImage = req.file.path;
+
+    const customer = await Customer.create(data);
+    res.status(201).json(customer);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+// 📋 Get All Customers — Dietitian or Advisor only
+
+const getAllCustomerByOthers = async (req, res) => {
+  try {
+    const customers = await Customer.find()
+      .populate("dietitianId", "name")
+      .populate("advisorId", "name");
+    res.json(customers);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// 🔍 Get Customer by ID — accessible by owner, their Dietitian, or their Advisor
+
+const getSingleCustomerByOthers = async (req, res) => {
+  try {
+    const customer = await Customer.findById(req.params.id)
+      .populate("dietitianId", "name")
+      .populate("advisorId", "name");
+    if (!customer) return res.status(404).json({ msg: "Not found" });
+    console.log(customer);
+    console.log(req.user);
+
+    if (
+      (req.user.role === "customer" && req.user.id !== String(customer._id)) ||
+      (req.user.role === "dietitian" &&
+        req.user.id !== String(customer.dietitianId)) ||
+      (req.user.role === "advisor" &&
+        req.user.id !== String(customer.advisorId))
+    ) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    res.json(customer);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+/***************** END  *********************/
+
+/******** Token based Authentication ***********/
+
 const register = async (req, res) => {
   const { name, age, email, password } = req.body;
   try {
@@ -251,4 +311,7 @@ module.exports = {
   deleteCustomer,
   register,
   login,
+  createCustomerByOther,
+  getAllCustomerByOthers,
+  getSingleCustomerByOthers,
 };

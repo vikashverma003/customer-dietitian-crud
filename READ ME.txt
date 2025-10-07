@@ -86,7 +86,47 @@ You now have a complete secure CRUD system with:
 
 ✅ Role-based access control support
 
-/************************************************************************************************/
+/**************************************  This branch contains below things  **********************************************************/
+
+let’s now add role-based access control (RBAC) to your Node.js + JWT CRUD app.
+
+we are also adding the authentication for the dietitian and advisor .
+
+We already have each token containing { id, role }.
+Now we’ll extend that to restrict access to certain routes depending on user roles:
+
+👤 Customer → can view/update own profile, add reviews.
+
+🥗 Dietitian → can view their own reviews & assigned customers.
+
+💼 Advisor → can view/manage customers they advise.
+
+🛡️ Admin (optional) → can access everything (if you add one later).
+
+
+1  ⚙️ Step 1: Create Role Authorization Middleware
+
+// middleware/authorizeRole.js
+
+const authorizeRole = (...allowedRoles) => {
+  return (req, res, next) => {
+    if (!req.user) return res.status(401).json({ message: "Unauthorized" });
+
+    if (!allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({ message: "Access denied: Insufficient permissions" });
+    }
+
+    next();
+  };
+};
+
+module.exports = authorizeRole;
+
+
+✅ This allows you to restrict any route like:
+
+router.get("/", protect, authorizeRole("dietitian", "advisor"), handler);
+
 
 
 /************************************************************************************************/
