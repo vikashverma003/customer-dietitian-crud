@@ -39,6 +39,7 @@ const getSingleCustomerByOthers = async (req, res) => {
       .populate("advisorId", "name");
     if (!customer) return res.status(404).json({ msg: "Not found" });
     console.log(customer);
+     console.log("CHECK HERE");
     console.log(req.user);
 
     if (
@@ -50,7 +51,7 @@ const getSingleCustomerByOthers = async (req, res) => {
     ) {
       return res.status(403).json({ message: "Access denied" });
     }
-
+    console.log("GET THE DATAAAA");
     res.json(customer);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -187,7 +188,9 @@ const createCustomer = async (req, res) => {
       dietitianId: req.body.dietitianId,
       name: req.body.name,
       age: req.body.age,
-      profileImage: req.file.path,
+      email: req.body.email,
+      password: req.body.password,
+      //profileImage: req.file.path,
     });
     const customer = await cust.save();
     /*

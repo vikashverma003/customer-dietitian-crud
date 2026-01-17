@@ -83,6 +83,8 @@ const createAdvisor = async (req, res) => {
     const adv = new Advisor({
       name: req.body.name,
       age: req.body.age,
+      email: req.body.email,
+      password: req.body.password,
     });
     const advisor = await adv.save();
     res.status(200).json(advisor);

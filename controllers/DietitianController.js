@@ -5,6 +5,7 @@ const generateToken = require("../utils/generateToken");
 /******** Token based Authentication ***********/
 
 const register = async (req, res) => {
+  console.log("asdasdas");
   const { name, age, email, password } = req.body;
   try {
     const exists = await Dietitian.findOne({ email });
@@ -76,12 +77,13 @@ const getDietitians = async (req, res) => {
   });
 }; */
 
-const createDietitian = async (req, res) => {
+const createDietitian = async (req, res) => { console.log(req.body);
   try {
     const cust = new Dietitian({
       name: req.body.name,
       age: req.body.age,
-      profileImage: req.file.path,
+      email:req.body.email,
+      password: req.body.password,
     });
     const dietitian = await cust.save();
     /*
