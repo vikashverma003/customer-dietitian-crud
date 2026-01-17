@@ -52,6 +52,71 @@ const folder = req.baseUrl.split("/").pop();
 So, this approach is useful when you want to extract the last part of the URL path
 
 
+multer.diskStorage({ ... })
+
+This tells Multer to store files on disk (your server’s file system).
+
+Inside it, you define:
+
+destination → where to save the file
+
+filename → what to name the file
+
+/***************************************************************************/
+
+// Hash password before save
+AdvisorSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+  this.password = await bcrypt.hash(this.password, 10);
+  next();
+});
+
+
+// Compare passwords
+AdvisorSchema.methods.matchPassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+}; 
+
+
+What is this code used for?
+
+This code is used to:
+
+1 Hash (encrypt) a password before saving it to the database
+
+2 Compare a login password with the stored hashed password
+
+It is commonly used in Node.js + Express + Mongoose authentication systems.
+
+1️⃣ pre("save") – Hash password before saving
+AdvisorSchema.pre("save", async function (next) {
+
+
+This is a Mongoose middleware (hook).
+
+👉 It runs automatically BEFORE a document is saved to the database.
+
+
+🔹 Why function and not arrow function?
+
+function (next) { ... }
+Regular function is used so this refers to the current document
+
+Arrow functions do not have their own this
+
+
+🔹 Check if password is modified
+
+if (!this.isModified("password")) return next();
+
+This line means:
+
+If the password was NOT changed
+
+Then skip hashing and move forward
+✅ Prevents rehashing an already hashed password during updates.
+
+
 /************************************************************************************************/
 let’s now integrate JWT-based authentication into your Node.js CRUD app for Customers, Dietitians, and Advisors — so each can register, log in, and access protected routes securely.
 
